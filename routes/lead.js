@@ -1,6 +1,6 @@
 const express = require('express');
 const { Lead } = require("../models/models.leads")
-const SalesAgent = require("../models/models.saleAgents")
+const { SalesAgent } = require("../models/models.saleAgents")
 const router = express.Router()
 
 router.post("/leads", async (req, res) => {
@@ -12,7 +12,7 @@ router.post("/leads", async (req, res) => {
         if (!salesAgent) return res.status(404).json({error: "Invalid input: 'salesAgent' is required."});
         if (!status) return res.status(404).json({error: "Invalid input: 'status' is required."});
         if (!tags) return res.status(404).json({error: "Invalid input: 'tags' is required."});
-        if (!timeToClose || timeToClose >= 1) return res.status(404).json({error: "Invalid input: 'timeToClose' is required."});
+        if (!timeToClose) return res.status(404).json({error: "Invalid input: 'timeToClose' is required."});
         if (!priority) return res.status(404).json({error: "Invalid input: 'priority' is required."});
 
         const agent = await SalesAgent.findById(salesAgent)
