@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose")
 const { SalesAgent } = require("../models/models.saleAgents");
 const router = express.Router();
 
@@ -22,7 +23,7 @@ router.post("/agents", async (req, res) => {
         const alreadyExist = await SalesAgent.findOne({ email });
         if (alreadyExist) {
             return res.status(409).json({ error: `Sales agent with email '${email}' already exists.` });
-        }
+        }                            
 
         const agent = new SalesAgent({ name, email });
         await agent.save();

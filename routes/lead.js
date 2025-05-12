@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require("mongoose")
 const { Lead } = require("../models/models.leads")
 const { SalesAgent } = require("../models/models.saleAgents")
 const router = express.Router()
@@ -121,8 +122,9 @@ router.put("/leads/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const { name, source, salesAgent, status, tags, timeToClose, priority } = req.body
+        console.log(req.body)
 
-        if(!mongoose.Types.objectId.isValid(id)) return res.status(400).json({ error: "Invalid lead ID." });
+        if(!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ error: "Invalid lead ID." });
 
         if (!name || !source || !salesAgent || !status || !timeToClose || !priority) {
             return res.status(400).json({ error: "All required fields must be provided." });
@@ -147,6 +149,11 @@ router.put("/leads/:id", async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(salesAgent)) {
           return res.status(400).json({ error: "Invalid sales agent ID." });
         }
+
+        if (!Array.isArray(tags)) {
+          return res.status(400).json({ error: "Tags must be an array." });
+        }
+
     
         const agent = await SalesAgent.findById(salesAgent);
         if (!agent) {
@@ -188,6 +195,7 @@ router.put("/leads/:id", async (req, res) => {
             updatedAt: updatedLead.updatedAt
           });
     } catch (err){
+      console.log(err)
         res.status(500).json({ error: "Server error while updating the lead." });
     }
 })
