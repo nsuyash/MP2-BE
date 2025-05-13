@@ -18,14 +18,15 @@ router.post("/leads/:id/comments", async (req, res) => {
             return res.status(400).json({ error: "Invalid input: 'commentText' is required and must non-empty string."})
         }
 
-        const lead = await Lead.findById(id).populate("salesAgent", "_id", "name")
+        const lead = await Lead.findById(id).populate("salesAgent", "id")
+
         if(!lead) {
             return res.status(404).json({error: `Lead with ID '${id}' not found.`});
         }
 
         const comment = new Comment({
-            lead: lead._id,
-            author: lead.salesAgent._id,
+            lead: lead.id,
+            author: lead.salesAgent.id,
             commentText: commentText
         })
 
