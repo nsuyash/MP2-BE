@@ -2,6 +2,7 @@ const express = require("express")
 const router = express.Router()
 const { Lead } = require("../models/models.leads")
 const { Comment } = require("../models/models.comments")
+const { SalesAgent } = require("../models/models.saleAgents")
 const mongoose = require("mongoose")
 
 
@@ -20,6 +21,9 @@ router.post("/leads/:id/comments", async (req, res) => {
 
         const lead = await Lead.findById(id).populate("salesAgent", "id")
 
+        const agent = await SalesAgent.findById(lead.salesAgent.id)
+        if (!agent) return res.status(404).json({error: `Sales agent with ID '${salesAgent}' not found.`});
+
         if(!lead) {
             return res.status(404).json({error: `Lead with ID '${id}' not found.`});
         }
@@ -34,7 +38,7 @@ router.post("/leads/:id/comments", async (req, res) => {
         res.status(200).json({
             id: comment._id,
             commentText: comment.commentText,
-            author: lead.salesAgent.name,
+            author: agent.name,
             createdAt: comment.createdAt
         })
 
