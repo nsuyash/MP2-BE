@@ -22,7 +22,7 @@ router.post("/leads/:id/comments", async (req, res) => {
         const lead = await Lead.findById(id).populate("salesAgent", "id")
 
         const agent = await SalesAgent.findById(lead.salesAgent.id)
-        if (!agent) return res.status(404).json({error: `Sales agent with ID '${salesAgent}' not found.`});
+        if (!agent) return res.status(404).json({error: `Sales agent with ID '${lead.salesAgent.id}' not found.`});
 
         if(!lead) {
             return res.status(404).json({error: `Lead with ID '${id}' not found.`});
@@ -64,7 +64,9 @@ router.get("/leads/:id/comments", async (req, res) => {
 
         const comments = await Comment.find().populate("author", "name")
 
-        const response = comments.map(comment => ({
+        const filteredComments = comments.filter(comment => comment.lead == id)
+
+        const response = filteredComments.map(comment => ({
             id: comment._id,
             commentText: comment.commentText,
             author: comment.author.name,
