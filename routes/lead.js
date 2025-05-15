@@ -54,10 +54,11 @@ router.post("/leads", async (req, res) => {
 
 const allowedStatuses = ['New', 'Contacted', 'Qualified', 'Proposal Sent', 'Closed'];
 const allowedSources = ['Website', 'Referral', 'Cold Call', 'Advertisement', 'Email', 'Other'];
+const allowedPriorities = ['High', 'Medium', 'Low'];
 
 router.get("/leads", async (req, res) => {
     try {
-        const { salesAgent, status, tags, source} = req.query
+        const { salesAgent, status, priority, source} = req.query
         const filter = {}
 
         if (salesAgent) {
@@ -87,10 +88,14 @@ router.get("/leads", async (req, res) => {
             filter.source = source;
           } 
 
-           if (tags){
-                const tagsArray = Array.isArray(tags) ? tags : tags.split(",")
-                filter.tags = {$all: tagsArray}
-           }
+           if (priority) {
+            if (!allowedPriorities.includes(priority)) {
+              return res.status(400).json({
+                error: `Invalid input: 'priority' must be one of ${JSON.stringify(allowedPriorities)}.`
+              });
+            }
+            filter.priority = priority;
+          } 
 
            const leads = await Lead.find(filter).populate("salesAgent", "name")
 
@@ -129,10 +134,6 @@ router.put("/leads/:id", async (req, res) => {
         if (!name || !source || !salesAgent || !status || !timeToClose || !priority) {
             return res.status(400).json({ error: "All required fields must be provided." });
         }
-        
-        const allowedStatuses = ['New', 'Contacted', 'Qualified', 'Proposal Sent', 'Closed'];
-        const allowedSources = ['Website', 'Referral', 'Cold Call', 'Advertisement', 'Email', 'Other'];
-        const allowedPriorities = ['High', 'Medium', 'Low'];
     
         if (!allowedStatuses.includes(status)) {
           return res.status(400).json({ error: `Invalid status. Must be one of ${allowedStatuses.join(', ')}` });
